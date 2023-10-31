@@ -239,7 +239,6 @@ def main():
     wait = WebDriverWait(browser, 30)
 
     login_and_filter(browser, wait, credenciais)
-    exit()
 
     ## CASOS LOOP
     for x in range(1000):
