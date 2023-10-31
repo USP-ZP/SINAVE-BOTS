@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "sinave-bot"
+version = "0.1.0"
+description = ""
+authors = ["Estevão Soares dos Santos <estevao.santos@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+selenium = "^4.14.0"
+pyyaml = "^6.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
