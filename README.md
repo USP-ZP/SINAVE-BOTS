@@ -21,9 +21,21 @@
 3. Crie um ficheiro chamado `config.yaml` com as suas credenciais do SINAVE
 
     ```yaml
-    username: "arnaldo.bento"
-    password: "umaPasswordSuperDificil"
+    credenciais:
+      username: "arnaldo.bento"
+      password: "umaPasswordSuperDificil"
     ```
 
 4. Corra o bot `python main.py`
 
+
+## Exemplo de ficheiro de configuração
+
+```yaml
+credenciais:
+  username: "arnaldo.bento"
+  password: "umaPasswordSuperDificil"
+logs:
+  filename: './logs.log'
+  filemode: 'a'
+```

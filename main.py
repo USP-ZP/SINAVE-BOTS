@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -9,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import yaml
 from yaml.loader import SafeLoader
+import logging
 
 
 def login_and_filter(browser: webdriver, wait: WebDriverWait, credenciais):
@@ -222,14 +224,48 @@ def enviar_ie(browser: webdriver, wait: WebDriverWait, classificacao):
     x_path = '//*[@id="formCase"]/div//button[contains(@title, "Validar o Caso e enviar para DSP")]'
     browser.find_element(By.XPATH, x_path).click()
     time.sleep(1)
-    #x_path2 = '//div[@class="modal"]//button[contains(@data-bb-handler, "confirm")]'
+    # x_path2 = '//div[@class="modal"]//button[contains(@data-bb-handler, "confirm")]'
     x_path2 = '/html/body/div[2]/div/div/div[2]/button[2]'
     browser.find_element(By.XPATH, x_path2).click()
 
 
+def validate_config(cfg: dict):
+    credenciais = cfg.get('credenciais')
+    if credenciais is None:
+        raise Exception('O ficheiro de configuração está mal formado: não contem credenciais')
+
+    if credenciais.get('username') is None:
+        raise Exception('O ficheiro de configuração está mal formado: as credenciais não contém username')
+
+    if credenciais.get('password') is None:
+        raise Exception('O ficheiro de configuração está mal formado: as credenciais não contém password')
+
+    logs = cfg.get('logs')
+
+    if logs.get('filename') is None:
+        cfg['logs']['filename'] = './logs.log'
+
+    if logs.get('filemode') is None:
+        cfg['logs']['filemode'] = 'w'
+
+    mode = logs.get('filemode')
+
+    if mode != 'w' and mode != 'a':
+        raise Exception('O ficheiro de configuração está mal formado: filemode só pode ser `w` ou `a`')
+
+    return cfg
+
+
 def main():
     with open('config.yaml') as f:
-        credenciais = yaml.load(f, Loader=SafeLoader)
+        cfg = yaml.load(f, Loader=SafeLoader)
+        cfg = validate_config(cfg)
+
+    logging.basicConfig(
+        filename=cfg['logs']['filename'],
+        filemode=cfg['logs']['filemode'],
+        encoding='utf-8',
+        level=logging.INFO)
 
     opts = Options()
     # opts.add_experimental_option("debuggerAddress", "localhost:9222")
@@ -238,22 +274,30 @@ def main():
     browser.implicitly_wait(2)
     wait = WebDriverWait(browser, 30)
 
-    login_and_filter(browser, wait, credenciais)
+    login_and_filter(browser, wait, cfg.get('credenciais'))
 
-    ## CASOS LOOP
+    # CASOS LOOP
     for x in range(1000):
-        print(x)
-        ordenar_resultados(browser)
-        time.sleep(4)
+        try:
+            ordenar_resultados(browser)
+            time.sleep(4)
 
-        # obter info
-        info = obter_info_caso(browser, wait)
+            # obter info
+            info = obter_info_caso(browser, wait)
 
-        # criar caso
-        criar_caso(browser, wait, info)
+            # criar caso
+            criar_caso(browser, wait, info)
 
-        classificacao = preencher_ie(browser, wait)
-        enviar_ie(browser, wait, classificacao)
+            classificacao = preencher_ie(browser, wait)
+            enviar_ie(browser, wait, classificacao)
+            now = datetime.now()
+            logging.info(f"[{now.strftime('%d/%m/%Y %H:%M:%S')}] notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
+            print(f"[{x}] {now.strftime('%d/%m/%Y %H:%M:%S')}  notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
+
+        except NoSuchElementException as e:
+            logging.error(e)
+            print(f"[{x}] ERROR!!!!", e)
+
         time.sleep(2)
 
 
