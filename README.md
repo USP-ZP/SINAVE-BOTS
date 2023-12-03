@@ -8,7 +8,7 @@
     git clone git@github.com:USP-ZP/SINAVE-BOTS.git
     ```
 
-    NOTA: Se não tem o Git instalado, veja as isntruções aqui: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+    NOTA: Se não tem o Git instalado, veja as instruções aqui: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 
 2. Instale as dependências com o poetry
 
@@ -16,7 +16,7 @@
     poetry install
     ```
 
-    NOTA: Se não tem o poetry instalado, siga as instruções aqui: https://python-poetry.org/docs/
+    NOTA: Se não tem o poetry ou o python instalado, siga as instruções aqui: https://python-poetry.org/docs/
 
 3. Crie um ficheiro chamado `config.yaml` com as suas credenciais do SINAVE
 
