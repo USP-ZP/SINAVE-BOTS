@@ -36,6 +36,8 @@ credenciais:
   username: "arnaldo.bento"
   password: "umaPasswordSuperDificil"
 logs:
-  filename: './logs.log'
-  filemode: 'a'
+  filename: "./logs.log"
+  filemode: "a"
+settings:
+  concelho: "Caldas da Rainha"
 ```
