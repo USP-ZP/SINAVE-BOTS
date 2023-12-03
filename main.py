@@ -13,7 +13,7 @@ from yaml.loader import SafeLoader
 import logging
 
 
-def login_and_filter(browser: webdriver, wait: WebDriverWait, credenciais):
+def login_and_filter(browser: webdriver, wait: WebDriverWait, credenciais, settings):
     # credenciais
     username = credenciais.get('username')
     password = credenciais.get('password')
@@ -62,8 +62,9 @@ def login_and_filter(browser: webdriver, wait: WebDriverWait, credenciais):
     select.select_by_visible_text('Aguarda IE')
 
     # concelho
-    select = Select(browser.find_element(By.ID, 'id_concelho'))
-    select.select_by_visible_text('Caldas da Rainha')
+    if settings.get('concelho') is not None:
+        select = Select(browser.find_element(By.ID, 'id_concelho'))
+        select.select_by_visible_text('Caldas da Rainha')
 
     # submit
     browser.find_element(By.ID, 'btPesq').click()
@@ -240,6 +241,7 @@ def validate_config(cfg: dict):
     if credenciais.get('password') is None:
         raise Exception('O ficheiro de configuração está mal formado: as credenciais não contém password')
 
+    # Logs
     logs = cfg.get('logs')
 
     if logs.get('filename') is None:
@@ -252,6 +254,11 @@ def validate_config(cfg: dict):
 
     if mode != 'w' and mode != 'a':
         raise Exception('O ficheiro de configuração está mal formado: filemode só pode ser `w` ou `a`')
+
+    # settings
+    settings = cfg.get('settings')
+    if settings is None:
+        cfg['settings'] = {}
 
     return cfg
 
@@ -274,7 +281,7 @@ def main():
     browser.implicitly_wait(2)
     wait = WebDriverWait(browser, 30)
 
-    login_and_filter(browser, wait, cfg.get('credenciais'))
+    login_and_filter(browser, wait, cfg.get('credenciais'), cfg.get('settings'))
 
     # CASOS LOOP
     for x in range(1000):
@@ -291,8 +298,10 @@ def main():
             classificacao = preencher_ie(browser, wait)
             enviar_ie(browser, wait, classificacao)
             now = datetime.now()
-            logging.info(f"[{now.strftime('%d/%m/%Y %H:%M:%S')}] notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
-            print(f"[{x}] {now.strftime('%d/%m/%Y %H:%M:%S')}  notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
+            logging.info(
+                f"[{now.strftime('%d/%m/%Y %H:%M:%S')}] notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
+            print(
+                f"[{x}] {now.strftime('%d/%m/%Y %H:%M:%S')}  notificação {info.get('num_notificacao')} de {info.get('data_notificacao')}")
 
         except NoSuchElementException as e:
             logging.error(e)
