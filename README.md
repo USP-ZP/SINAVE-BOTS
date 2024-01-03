@@ -1,5 +1,10 @@
 # SINAVE-BOTS
 
+Ferramenta para "limpar" as notificações e casos de SARS-CoV-2/COVID do SINAVE.
+
+## Autor
+Programado por [Estêvão Soares dos Santos](https://github.com/tivie)
+
 ## Instruções rápidas
 
 1. Clone o repositório
